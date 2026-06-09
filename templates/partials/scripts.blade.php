@@ -25,8 +25,8 @@
                     });
                     return marked.parse(content);
                 }
-                
-                return content; 
+
+                return content;
             },
 
             sendQuickPrompt(text) {
@@ -59,7 +59,7 @@
 
                 eventSource.addEventListener('message', (event) => {
                     this.isTyping = false;
-                    
+
                     try {
                         const data = JSON.parse(event.data);
                         if (data.content) {
@@ -81,9 +81,10 @@
                     console.error("EventSource encountered an error", err);
                     eventSource.close();
                     this.isTyping = false;
-                    
+
                     if (this.messages[modelMessageIndex].content === '') {
-                        this.messages[modelMessageIndex].content = "⚠️ Sorry, I had trouble connecting to the campus intelligence system. Please check your internet connection or verify your GEMINI_API_KEY inside the .env file.";
+                        this.messages[modelMessageIndex].content =
+                            "⚠️ Sorry, I had trouble connecting to the campus intelligence system. Please check your internet connection or verify your GEMINI_API_KEY inside the .env file.";
                     }
                     this.saveToStorage();
                     this.scrollToBottom();
@@ -101,8 +102,10 @@
 
             scrollToBottom() {
                 this.$nextTick(() => {
-                    const container = this.$refs.messageContainer;
-                    container.scrollTop = container.scrollHeight;
+                    const container = document.getElementById('message-container');
+                    if (container) {
+                        container.scrollTop = container.scrollHeight;
+                    }
                 });
             }
         }

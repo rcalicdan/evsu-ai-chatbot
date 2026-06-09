@@ -43,10 +43,17 @@ class ChatController
 
         $prompt = $this->chatService->getChatPrompt($query);
 
-        header('Content-Type: text/event-stream');
-        header('Cache-Control: no-cache');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no');
+        $response = $response
+            ->withHeader('Content-Type', 'text/event-stream')
+            ->withHeader('Cache-Control', 'no-cache')
+            ->withHeader('Connection', 'keep-alive')
+            ->withHeader('X-Accel-Buffering', 'no');
+
+        foreach ($response->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                header(sprintf('%s: %s', $name, $value), false);
+            }
+        }
 
         await(
             $prompt->streamWithEvents(
