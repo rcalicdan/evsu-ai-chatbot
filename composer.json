@@ -13,6 +13,7 @@
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.8",
+        "hiblaphp/http-client": "^1.0@beta",
         "rcalicdan/gemini-client": "^0.3.2",
         "eftec/bladeone": "^4.19",
         "rcalicdan/config-loader": "^1.2",
@@ -30,6 +31,6 @@
         }
     },
     "scripts": {
-        "format": "./vendor/bin/pint"
+        "format" :"./vendor/bin/pint"
     }
 }

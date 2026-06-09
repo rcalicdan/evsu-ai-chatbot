@@ -10,6 +10,8 @@ use function Integrations\View\blade_view;
 
 return function (App $app): void {
     $app->get('/', function (Request $request, Response $response) {
-        return blade_view('home', ['title' => 'Home'], $response);
+        return blade_view('home', [
+            'title' => 'EVSU Enrollment Assistant',
+        ], $response);
     });
 };

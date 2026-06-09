@@ -1,12 +1,9 @@
-
 <?php
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
-
-use Integrations\View\BladeRenderer;
 use eftec\bladeone\BladeOne;
+use Integrations\View\BladeRenderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 
