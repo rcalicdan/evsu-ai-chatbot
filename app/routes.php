@@ -6,7 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 
-use function App\View\blade_view;
+use function Integrations\View\blade_view;
 
 return function (App $app): void {
     $app->get('/', function (Request $request, Response $response) {

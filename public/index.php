@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\View\BladeRenderer;
 use DI\ContainerBuilder;
+use Integrations\View\BladeRenderer;
 use Slim\Factory\AppFactory;
 
 use function Rcalicdan\ConfigLoader\env;

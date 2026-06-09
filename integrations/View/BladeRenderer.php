@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\View;
+namespace Integrations\View;
 
 use eftec\bladeone\BladeOne;
 use Psr\Http\Message\ResponseFactoryInterface;
