@@ -29,6 +29,9 @@
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Marked.js CDN for compiling Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         [x-cloak] {
             display: none !important;
@@ -50,6 +53,44 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background-color: #94a3b8;
+        }
+
+        .markdown-content p {
+            margin-bottom: 0.75rem;
+            line-height: 1.625;
+        }
+
+        .markdown-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .markdown-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .markdown-content ol {
+            list-style-type: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.35rem;
+            line-height: 1.5;
+        }
+
+        .markdown-content li::marker {
+            color: #800000;
+            font-weight: bold;
+        }
+
+        .markdown-content strong {
+            font-weight: 700;
+            color: #1e293b;
         }
     </style>
 </head>

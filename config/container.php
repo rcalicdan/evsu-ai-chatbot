@@ -6,6 +6,8 @@ use Integrations\View\BladeRenderer;
 use eftec\bladeone\BladeOne;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Rcalicdan\GeminiClient\GeminiClient;
+use Rcalicdan\GeminiClient\Interfaces\GeminiClientInterface;
 use Slim\Psr7\Factory\ResponseFactory;
 
 use function Rcalicdan\ConfigLoader\config;
@@ -13,6 +15,13 @@ use function Rcalicdan\ConfigLoader\config;
 return [
     ResponseFactoryInterface::class => function () {
         return new ResponseFactory();
+    },
+
+    GeminiClientInterface::class => function () {
+        return new GeminiClient(
+            apiKey: config('gemini.api_key'),
+            model: config('gemini.model', 'gemini-2.5-flash-lite')
+        );
     },
 
     BladeOne::class => function () {

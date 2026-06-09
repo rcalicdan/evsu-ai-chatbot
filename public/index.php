@@ -27,6 +27,6 @@ $app->addErrorMiddleware(
     logErrorDetails: true,
 );
 
-(require __DIR__ . '/../app/routes.php')($app);
+(require __DIR__ . '/../config/routes.php')($app);
 
 $app->run();

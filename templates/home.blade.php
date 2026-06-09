@@ -119,18 +119,28 @@
                             'bg-gradient-to-br from-evsu-maroon to-evsu-maroonlight text-white rounded-br-none' :
                             'bg-white text-slate-800 border border-slate-200/90 rounded-bl-none'">
 
-                        <!-- Metadata tags above bot bubbles -->
-                        <template x-if="msg.role === 'model'">
-                            <div
-                                class="flex items-center space-x-1.5 text-[9px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                                <span>EVSU COMPANION</span>
-                                <span class="text-slate-300">&bull;</span>
-                                <span class="text-evsu-golddark">OFFICIAL ASSISTANT</span>
+                        <!-- 1. USER Bubble: Render safely as raw text (Prevents XSS) -->
+                        <template x-if="msg.role === 'user'">
+                            <div x-text="msg.content"
+                                class="whitespace-pre-wrap select-text selection:bg-evsu-gold selection:text-slate-900">
                             </div>
                         </template>
 
-                        <div x-text="msg.content"
-                            class="whitespace-pre-wrap select-text selection:bg-evsu-gold selection:text-slate-900"></div>
+                        <!-- 2. BOT Bubble: Compile Markdown cleanly to formatted HTML -->
+                        <template x-if="msg.role === 'model'">
+                            <div>
+                                <div
+                                    class="flex items-center space-x-1.5 text-[9px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
+                                    <span>EVSU COMPANION</span>
+                                    <span class="text-slate-300">&bull;</span>
+                                    <span class="text-evsu-golddark">OFFICIAL ASSISTANT</span>
+                                </div>
+                                <!-- Markdown compiler output -->
+                                <div x-html="renderMarkdown(msg.content)"
+                                    class="markdown-content select-text selection:bg-evsu-gold selection:text-slate-900">
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </template>
