@@ -31,11 +31,11 @@
         <!-- Quick Portal Links -->
         <div class="space-y-2">
             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block px-1">University Quick Links</span>
-            <a href="https://portal.evsu.edu.ph" target="_blank" class="flex items-center justify-between p-3 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800/80 transition-colors group">
+            <a href="https://apps.evsu.edu.ph/students/login" target="_blank" class="flex items-center justify-between p-3 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800/80 transition-colors group">
                 <span class="text-xs text-slate-300 font-medium group-hover:text-evsu-gold">Student Portal</span>
                 <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-evsu-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
             </a>
-            <a href="https://evsu.edu.ph" target="_blank" class="flex items-center justify-between p-3 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800/80 transition-colors group">
+            <a href="https://apps.evsu.edu.ph" target="_blank" class="flex items-center justify-between p-3 bg-slate-900/60 hover:bg-slate-900 rounded-xl border border-slate-800/80 transition-colors group">
                 <span class="text-xs text-slate-300 font-medium group-hover:text-evsu-gold">Main Website</span>
                 <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-evsu-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
             </a>
