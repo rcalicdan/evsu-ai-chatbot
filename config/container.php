@@ -2,14 +2,19 @@
 
 declare(strict_types=1);
 
-use eftec\bladeone\BladeOne;
 use Integrations\View\BladeRenderer;
+use eftec\bladeone\BladeOne;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Slim\Psr7\Factory\ResponseFactory;
 
 use function Rcalicdan\ConfigLoader\config;
 
 return [
+    ResponseFactoryInterface::class => function () {
+        return new ResponseFactory();
+    },
+
     BladeOne::class => function () {
         return new BladeOne(
             config('blade.templates_path'),
