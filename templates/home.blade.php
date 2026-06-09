@@ -1,327 +1,181 @@
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'EVSU Chatbot Assistant' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        evsu: {
-                            maroon: '#800000',     
-                            maroonlight: '#991b1b',
-                            gold: '#eab308',      
-                            golddark: '#ca8a04'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        [x-cloak] { display: none !important; }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 3px;
-        }
-    </style>
-</head>
-<body class="h-full overflow-hidden text-slate-800" x-data="chatApp()" x-init="init()" x-cloak>
+@extends('layouts.app')
 
-    <div class="flex h-full overflow-hidden">
-        
-        <!-- Mobile Sidebar Overlay Backdrop -->
-        <div x-show="sidebarOpen" 
-             @click="sidebarOpen = false" 
-             class="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm lg:hidden"
-             x-transition:enter="transition-opacity ease-linear duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition-opacity ease-linear duration-300"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-        </div>
+@section('title', $title ?? 'EVSU Virtual Campus Companion')
 
-        <!-- Sidebar (Chat History / Utilities) -->
-        <aside class="fixed inset-y-0 left-0 z-40 flex flex-col w-72 bg-slate-900 border-r border-slate-800 text-white transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-in-out"
-               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-            
-            <!-- Sidebar Header -->
-            <div class="flex items-center justify-between h-16 px-4 border-b border-slate-800">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-evsu-maroon flex items-center justify-center border border-evsu-gold/30">
-                        <span class="text-xs font-bold text-evsu-gold">EVSU</span>
-                    </div>
-                    <span class="font-semibold tracking-wide text-sm">Enrollment Assistant</span>
+@section('content')
+    <!-- Messages Area Container -->
+    <div class="flex-1 overflow-y-auto px-6 py-8 md:px-12 space-y-6" x-ref="messageContainer">
+
+        <!-- Expanded General-Purpose Welcome View (Shown when message history is empty) -->
+        <template x-if="messages.length === 0">
+            <div class="flex flex-col items-center justify-center min-h-[75vh] text-center max-w-2xl mx-auto py-8">
+                <div
+                    class="w-20 h-20 rounded-2xl bg-gradient-to-br from-evsu-maroon to-evsu-maroonlight flex items-center justify-center text-white text-3xl font-black shadow-xl border-2 border-evsu-gold mb-8 shadow-evsu-maroon/20">
+                    E
                 </div>
-                <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">How can I assist you on campus
+                    today?</h2>
+                <p class="mt-3 text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                    I am your comprehensive EVSU guide. Ask me about enrollment, offered academic programs, portals,
+                    facilities, calendar schedules, and more!
+                </p>
 
-            <!-- New Chat Button -->
-            <div class="p-4">
-                <button @click="resetChat()" class="flex items-center justify-center w-full px-4 py-2.5 space-x-2 text-sm font-medium text-slate-900 bg-evsu-gold hover:bg-evsu-golddark active:scale-[0.98] transition-all rounded-xl focus:outline-none shadow-lg shadow-evsu-gold/10">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    <span>Clear Conversation</span>
-                </button>
-            </div>
+                <!-- Categorized Prompts Layout -->
+                <div class="w-full mt-10 space-y-6 text-left">
+                    <h3
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block border-b border-slate-200 pb-2">
+                        Select a topic to start</h3>
 
-            <!-- Info Area -->
-            <div class="flex-1 px-4 py-2 overflow-y-auto space-y-4">
-                <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
-                    <span class="font-semibold text-slate-200 block mb-1">💡 Demo App Instructions</span>
-                    This assistant responds to freshman guidelines, enrollment processes, and basic admission requirements. All chat sessions are saved locally on your device.
-                </div>
-                
-                <div class="p-3 bg-slate-800/40 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
-                    <span class="font-semibold text-slate-200 block mb-1">🏫 About EVSU</span>
-                    Eastern Visayas State University is a premier state university headquartered in Tacloban City, Philippines, dedicated to science and technology education.
-                </div>
-            </div>
-
-            <!-- Sidebar Footer -->
-            <div class="p-4 border-t border-slate-800 text-center text-xs text-slate-500">
-                <span>EVSU Demo Project &copy; 2026</span>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col h-full bg-slate-50 overflow-hidden relative">
-            
-            <!-- Main Top Navbar -->
-            <header class="flex items-center justify-between h-16 px-4 bg-white border-b border-slate-200 shadow-sm z-20">
-                <div class="flex items-center space-x-3">
-                    <!-- Toggle Menu Button (Mobile Only) -->
-                    <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    </button>
-                    
-                    <!-- Title info -->
-                    <div class="flex items-center space-x-2">
-                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <div>
-                            <h1 class="text-sm font-semibold text-slate-900">EVSU Bot</h1>
-                            <p class="text-[10px] text-slate-500 font-medium">Virtual Campus Guide</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EVSU Seal / Branding Mockup -->
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-semibold text-evsu-maroon hidden md:inline">Eastern Visayas State University</span>
-                    <div class="w-8 h-8 rounded-full bg-evsu-maroon border border-evsu-gold flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
-                        EVSU
-                    </div>
-                </div>
-            </header>
-
-            <!-- Messages Area -->
-            <div class="flex-1 overflow-y-auto px-4 py-6 md:px-8 space-y-6" x-ref="messageContainer">
-                
-                <!-- Zero State Welcome View -->
-                <template x-if="messages.length === 0">
-                    <div class="flex flex-col items-center justify-center min-h-[70vh] text-center max-w-lg mx-auto py-8">
-                        <div class="w-16 h-16 rounded-2xl bg-evsu-maroon flex items-center justify-center text-white text-xl font-bold shadow-xl border-2 border-evsu-gold mb-6">
-                            E
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">EVSU Virtual Student Helper</h2>
-                        <p class="mt-2 text-sm text-slate-600">
-                            Welcome, future EVSU student! Ask me anything regarding enrollment requirements, processes, or general admission questions.
-                        </p>
-
-                        <!-- Quick Prompts Cards Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8 w-full">
-                            <button @click="sendQuickPrompt('What are the enrollment requirements for freshmen?')" 
-                                    class="p-4 text-left bg-white border border-slate-200 rounded-xl hover:border-evsu-maroon/40 hover:shadow-md transition-all active:scale-[0.98] group">
-                                <span class="block text-xs font-semibold text-slate-900 group-hover:text-evsu-maroon">Freshman Requirements</span>
-                                <span class="block text-[11px] text-slate-500 mt-1">View list of mandatory documents for admissions.</span>
-                            </button>
-                            
-                            <button @click="sendQuickPrompt('Explain the online enrollment process.')" 
-                                    class="p-4 text-left bg-white border border-slate-200 rounded-xl hover:border-evsu-maroon/40 hover:shadow-md transition-all active:scale-[0.98] group">
-                                <span class="block text-xs font-semibold text-slate-900 group-hover:text-evsu-maroon">Enrollment Steps</span>
-                                <span class="block text-[11px] text-slate-500 mt-1 font-normal">Understand the step-by-step registration flow.</span>
-                            </button>
-
-                            <button @click="sendQuickPrompt('Where is the EVSU Main Campus located?')" 
-                                    class="p-4 text-left bg-white border border-slate-200 rounded-xl hover:border-evsu-maroon/40 hover:shadow-md transition-all active:scale-[0.98] group">
-                                <span class="block text-xs font-semibold text-slate-900 group-hover:text-evsu-maroon">Campus Location</span>
-                                <span class="block text-[11px] text-slate-500 mt-1">Get coordinates and location of the university.</span>
-                            </button>
-
-                            <button @click="sendQuickPrompt('Who can I contact for admission inquiries?')" 
-                                    class="p-4 text-left bg-white border border-slate-200 rounded-xl hover:border-evsu-maroon/40 hover:shadow-md transition-all active:scale-[0.98] group">
-                                <span class="block text-xs font-semibold text-slate-900 group-hover:text-evsu-maroon">Contact Admission Office</span>
-                                <span class="block text-[11px] text-slate-500 mt-1">Find email, phone numbers, and office schedule.</span>
-                            </button>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- Active Message List -->
-                <div class="max-w-3xl mx-auto space-y-4">
-                    <template x-for="(msg, index) in messages" :key="index">
-                        <div class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-                            
-                            <!-- Bot Avatar -->
-                            <template x-if="msg.role === 'model'">
-                                <div class="w-8 h-8 rounded-lg bg-evsu-maroon flex items-center justify-center text-white text-[11px] font-bold border border-evsu-gold/30 mr-3 shrink-0 mt-0.5">
-                                    E
-                                </div>
-                            </template>
-
-                            <!-- Message Bubble -->
-                            <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
-                                 :class="msg.role === 'user' 
-                                    ? 'bg-evsu-maroon text-white rounded-br-none shadow-sm' 
-                                    : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none shadow-sm'">
-                                <div x-text="msg.content" class="whitespace-pre-wrap"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Group 1: Enrollment & Academics -->
+                        <div class="space-y-3">
+                            <div
+                                class="flex items-center space-x-2 text-evsu-maroon font-bold text-xs uppercase tracking-wider">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.62 48.62 0 0112 20.9c4.956-1.936 8.285-4.41 8.285-4.41a60.188 60.188 0 00-.49-6.347m-16.1 0a48.314 48.314 0 0016.1 0m-16.1 0L12 14.25l8.05-4.103m-16.1 0a48.536 48.536 0 0116.1 0M12 3v11.25" />
+                                </svg>
+                                <span>Enrollment & Academics</span>
                             </div>
+                            <div class="space-y-2">
+                                <button @click="sendQuickPrompt('What are the enrollment requirements for freshmen?')"
+                                    class="w-full p-3.5 text-left bg-white border border-slate-200 hover:border-evsu-maroon/40 hover:shadow-md transition-all rounded-xl text-xs flex items-center justify-between group">
+                                    <span class="font-semibold text-slate-800 group-hover:text-evsu-maroon">View freshman
+                                        admission checklist</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-evsu-maroon shrink-0 ml-2"
+                                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                                <button @click="sendQuickPrompt('Explain the step-by-step enrollment process.')"
+                                    class="w-full p-3.5 text-left bg-white border border-slate-200 hover:border-evsu-maroon/40 hover:shadow-md transition-all rounded-xl text-xs flex items-center justify-between group">
+                                    <span class="font-semibold text-slate-800 group-hover:text-evsu-maroon">Explore
+                                        registration procedure</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-evsu-maroon shrink-0 ml-2"
+                                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Group 2: Campuses & General Info -->
+                        <div class="space-y-3">
+                            <div
+                                class="flex items-center space-x-2 text-evsu-maroon font-bold text-xs uppercase tracking-wider">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9s2.015-9 4.5-9m0 0a9.004 9.004 0 018.716 2.253M12 3a9.004 9.004 0 00-8.716 2.253M12 12h.008v.008H12V12z" />
+                                </svg>
+                                <span>Campuses & Facilities</span>
+                            </div>
+                            <div class="space-y-2">
+                                <button @click="sendQuickPrompt('Where are EVSU\'s branch campuses located?')"
+                                    class="w-full p-3.5 text-left bg-white border border-slate-200 hover:border-evsu-maroon/40 hover:shadow-md transition-all rounded-xl text-xs flex items-center justify-between group">
+                                    <span class="font-semibold text-slate-800 group-hover:text-evsu-maroon">Find branch
+                                        campuses & addresses</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-evsu-maroon shrink-0 ml-2"
+                                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                                <button @click="sendQuickPrompt('Are undergraduate programs free at EVSU?')"
+                                    class="w-full p-3.5 text-left bg-white border border-slate-200 hover:border-evsu-maroon/40 hover:shadow-md transition-all rounded-xl text-xs flex items-center justify-between group">
+                                    <span class="font-semibold text-slate-800 group-hover:text-evsu-maroon">Check free
+                                        tuition eligibility details</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-evsu-maroon shrink-0 ml-2"
+                                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </template>
+
+        <!-- Active Message Dialogue Block -->
+        <div class="max-w-3xl mx-auto space-y-6">
+            <template x-for="(msg, index) in messages" :key="index">
+                <div class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+
+                    <!-- Bot Branding Avatar Icon -->
+                    <template x-if="msg.role === 'model'">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-evsu-maroon to-evsu-maroonlight flex items-center justify-center text-white text-[11px] font-black border border-evsu-gold/30 mr-4 shrink-0 mt-0.5 shadow-md shadow-evsu-maroon/10">
+                            E
                         </div>
                     </template>
 
-                    <!-- Typing Indicator Bubble -->
-                    <div x-show="isTyping" class="flex justify-start" x-transition>
-                        <div class="w-8 h-8 rounded-lg bg-evsu-maroon flex items-center justify-center text-white text-[11px] font-bold border border-evsu-gold/30 mr-3 shrink-0 mt-0.5">
-                            E
-                        </div>
-                        <div class="bg-white border border-slate-200/80 rounded-2xl rounded-bl-none px-4 py-4 flex items-center space-x-1 shadow-sm">
-                            <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                            <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                            <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
-                        </div>
+                    <!-- Upgraded Message Bubble Style -->
+                    <div class="max-w-[85%] sm:max-w-[80%] rounded-2xl px-5 py-4 text-sm leading-relaxed shadow-sm transition-all"
+                        :class="msg.role === 'user' ?
+                            'bg-gradient-to-br from-evsu-maroon to-evsu-maroonlight text-white rounded-br-none' :
+                            'bg-white text-slate-800 border border-slate-200/90 rounded-bl-none'">
+
+                        <!-- Metadata tags above bot bubbles -->
+                        <template x-if="msg.role === 'model'">
+                            <div
+                                class="flex items-center space-x-1.5 text-[9px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
+                                <span>EVSU COMPANION</span>
+                                <span class="text-slate-300">&bull;</span>
+                                <span class="text-evsu-golddark">OFFICIAL ASSISTANT</span>
+                            </div>
+                        </template>
+
+                        <div x-text="msg.content"
+                            class="whitespace-pre-wrap select-text selection:bg-evsu-gold selection:text-slate-900"></div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Enhanced Typing Indicator -->
+            <div x-show="isTyping" class="flex justify-start" x-transition>
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-evsu-maroon to-evsu-maroonlight flex items-center justify-center text-white text-[11px] font-black border border-evsu-gold/30 mr-4 shrink-0 mt-0.5 shadow-md">
+                    E
+                </div>
+                <div
+                    class="bg-white border border-slate-200/90 rounded-2xl rounded-bl-none px-6 py-4 flex items-center space-x-1.5 shadow-sm">
+                    <div class="w-2.5 h-2.5 bg-evsu-maroon/80 rounded-full animate-bounce" style="animation-delay: 0ms">
+                    </div>
+                    <div class="w-2.5 h-2.5 bg-evsu-maroon/80 rounded-full animate-bounce" style="animation-delay: 150ms">
+                    </div>
+                    <div class="w-2.5 h-2.5 bg-evsu-maroon/80 rounded-full animate-bounce" style="animation-delay: 300ms">
                     </div>
                 </div>
             </div>
-
-            <!-- Sticky Chat Footer / Input area -->
-            <footer class="bg-white border-t border-slate-200 p-4 md:px-8">
-                <div class="max-w-3xl mx-auto">
-                    <form @submit.prevent="sendMessage()" class="relative flex items-center">
-                        <input type="text" 
-                               x-model="userInput" 
-                               placeholder="Type your question here (e.g. Freshman admission)..." 
-                               class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 text-sm rounded-2xl focus:outline-none focus:border-evsu-maroon/60 focus:bg-white transition-all text-slate-800"
-                               :disabled="isTyping">
-                        
-                        <!-- Send Button -->
-                        <button type="submit" 
-                                class="absolute right-2 p-2 rounded-xl text-white bg-evsu-maroon hover:bg-evsu-maroonlight focus:outline-none active:scale-95 transition-all disabled:opacity-40 disabled:scale-100"
-                                :disabled="userInput.trim() === '' || isTyping">
-                            <svg class="w-4 h-4 transform rotate-45" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
-                        </button>
-                    </form>
-                    <p class="text-[10px] text-center text-slate-400 mt-2">
-                        For demo testing only. Backed by Google Gemini LLM with local semantic search index.
-                    </p>
-                </div>
-            </footer>
-        </main>
+        </div>
     </div>
 
-    <!-- Alpine.js Application Logic -->
-    <script>
-        function chatApp() {
-            return {
-                sidebarOpen: false,
-                userInput: '',
-                isTyping: false,
-                messages: [],
+    <!-- Unified Floating Chat Input Area -->
+    <footer class="bg-white border-t border-slate-200/80 p-4 md:p-6 shadow-md z-10">
+        <div class="max-w-3xl mx-auto">
+            <form @submit.prevent="sendMessage()" class="relative flex items-center">
+                <input type="text" x-model="userInput" placeholder="Type any campus or admission question here..."
+                    class="w-full pl-5 pr-14 py-4 bg-slate-50 border border-slate-200/80 text-sm rounded-2xl focus:outline-none focus:border-evsu-maroon/60 focus:bg-white transition-all text-slate-800 shadow-inner"
+                    :disabled="isTyping">
 
-                init() {
-                    const saved = localStorage.getItem('evsu_chat_history');
-                    if (saved) {
-                        try {
-                            this.messages = JSON.parse(saved);
-                        } catch (e) {
-                            localStorage.removeItem('evsu_chat_history');
-                        }
-                    }
-                },
-
-                sendQuickPrompt(text) {
-                    this.userInput = text;
-                    this.sendMessage();
-                },
-
-                // Core send action
-                sendMessage() {
-                    if (this.userInput.trim() === '') return;
-
-                    const userText = this.userInput;
-                    this.userInput = '';
-
-                    // Append user's message
-                    this.messages.push({
-                        role: 'user',
-                        content: userText
-                    });
-
-                    this.saveToStorage();
-                    this.scrollToBottom();
-
-                    // Start bot mock typing simulation
-                    this.isTyping = true;
-                    
-                    setTimeout(() => {
-                        this.getMockResponse(userText);
-                    }, 1200);
-                },
-
-                // Simulated mockup responder (Will replace with streaming backend on subsequent steps)
-                getMockResponse(query) {
-                    let responseText = "I'm your EVSU Assistant. Once my backend is connected, I will search our university knowledge base and use AI to answer this question.";
-
-                    const cleanQuery = query.toLowerCase();
-
-                    if (cleanQuery.includes('requirement') || cleanQuery.includes('freshman')) {
-                        responseText = "To enroll as an incoming freshman at Eastern Visayas State University (EVSU), you must submit the following core requirements:\n\n1. Original Form 138 (Senior High School Report Card)\n2. Certification of Good Moral Character\n3. Photocopy of PSA Birth Certificate\n4. Certificate of General Average (signed by principal)\n5. Two (2) identical 2x2 pictures with white background";
-                    } else if (cleanQuery.includes('process') || cleanQuery.includes('steps')) {
-                        responseText = "The general EVSU enrollment flow follows these steps:\n\nStep 1: Apply online through the EVSU Admission Portal.\nStep 2: Take the admission/placement exam.\nStep 3: Wait for qualifying lists from respective colleges.\nStep 4: Present requirements to the College Dean's office for evaluation.\nStep 5: Encode subjects in the registrar system and receive your Certificate of Registration (COR).";
-                    } else if (cleanQuery.includes('location') || cleanQuery.includes('main')) {
-                        responseText = "The Eastern Visayas State University (EVSU) Main Campus is located on Salazar Street, Tacloban City, Leyte, Philippines.";
-                    } else if (cleanQuery.includes('contact') || cleanQuery.includes('admission')) {
-                        responseText = "You can contact the EVSU Admission Office at admissions@evsu.edu.ph or visit the Student Services Building at the Tacloban Main Campus. The office is open Monday to Friday, 8:00 AM to 5:00 PM.";
-                    }
-
-                    this.messages.push({
-                        role: 'model',
-                        content: responseText
-                    });
-
-                    this.isTyping = false;
-                    this.saveToStorage();
-                    this.scrollToBottom();
-                },
-
-                resetChat() {
-                    this.messages = [];
-                    localStorage.removeItem('evsu_chat_history');
-                },
-
-                saveToStorage() {
-                    localStorage.setItem('evsu_chat_history', JSON.stringify(this.messages));
-                },
-
-                scrollToBottom() {
-                    this.$nextTick(() => {
-                        const container = this.$refs.messageContainer;
-                        container.scrollTop = container.scrollHeight;
-                    });
-                }
-            }
-        }
-    </script>
-</body>
-</html>
+                <!-- Premium Action Button with Gold Highlights -->
+                <button type="submit"
+                    class="absolute right-3 p-2.5 rounded-xl text-slate-950 bg-gradient-to-r from-evsu-gold to-amber-400 hover:brightness-110 active:scale-95 transition-all disabled:opacity-30 disabled:scale-100 disabled:brightness-100 shadow-md"
+                    :disabled="userInput.trim() === '' || isTyping">
+                    <svg class="w-4 h-4 text-slate-900 transform rotate-45" fill="none" stroke="currentColor"
+                        stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                </button>
+            </form>
+            <p class="text-[10px] text-center text-slate-400 mt-2.5 tracking-wide">
+                Powered by Google Gemini LLM &bull; Structured with Semantic Search indexing of EVSU Campus Regulations
+            </p>
+        </div>
+    </footer>
+@endsection
