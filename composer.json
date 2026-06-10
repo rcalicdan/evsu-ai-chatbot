@@ -22,7 +22,6 @@
     "require-dev": {
         "laravel/pint": "^1.10",
         "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/extension-installer": "^1.4"
     },
     "config": {
@@ -31,6 +30,7 @@
         }
     },
     "scripts": {
-        "format" :"./vendor/bin/pint"
+        "format" :"./vendor/bin/pint",
+        "analyze" :"./vendor/bin/phpstan analyse"
     }
 }
