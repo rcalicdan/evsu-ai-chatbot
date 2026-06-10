@@ -14,7 +14,8 @@ class ChatService
 {
     public function __construct(
         private readonly GeminiClientInterface $gemini
-    ) {}
+    ) {
+    }
 
     public function getChatPrompt(string $query): GeminiPromptInterface
     {
@@ -27,7 +28,7 @@ class ChatService
                 ->send()
         );
 
-        $context = "";
+        $context = '';
 
         if (! empty($searchResults)) {
             $bestMatch = $searchResults[0];
@@ -41,14 +42,15 @@ class ChatService
         return $this->gemini
             ->prompt($query)
             ->system($systemInstruction)
-            ->balanced();
+            ->balanced()
+        ;
     }
 
     private function buildSystemInstruction(string $context): string
     {
-        $contextSource = $context !== ""
+        $contextSource = $context !== ''
             ? $context
-            : "No specific document found. Rely on general verified EVSU info or advise them to contact Admissions.";
+            : 'No specific document found. Rely on general verified EVSU info or advise them to contact Admissions.';
 
         return <<<PROMPT
         You are the official EVSU Virtual Campus Companion, a helpful, polite, and friendly AI assistant for Eastern Visayas State University (EVSU). Your goal is to assist students, applicants, faculty, and visitors with academic, administrative, and general university processes.

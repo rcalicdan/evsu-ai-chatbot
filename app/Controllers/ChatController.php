@@ -16,12 +16,13 @@ class ChatController
     public function __construct(
         private readonly BladeRenderer $renderer,
         private readonly ChatService $chatService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request, Response $response): Response
     {
         $data = [
-            'title' => 'EVSU Virtual Campus Companion'
+            'title' => 'EVSU Virtual Campus Companion',
         ];
 
         return $this->renderer->render(
@@ -38,6 +39,7 @@ class ChatController
 
         if (empty($query)) {
             $response->getBody()->write((string) json_encode(['error' => 'Message parameter is required']));
+
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
@@ -47,11 +49,12 @@ class ChatController
             ->withHeader('Content-Type', 'text/event-stream')
             ->withHeader('Cache-Control', 'no-cache')
             ->withHeader('Connection', 'keep-alive')
-            ->withHeader('X-Accel-Buffering', 'no');
+            ->withHeader('X-Accel-Buffering', 'no')
+        ;
 
         foreach ($response->getHeaders() as $name => $values) {
             foreach ($values as $value) {
-                header(sprintf('%s: %s', $name, $value), false);
+                header(\sprintf('%s: %s', $name, $value), false);
             }
         }
 

@@ -8,12 +8,17 @@
             "integrations/View/helpers.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "minimum-stability": "beta",
     "prefer-stable": true,
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.8",
-        "hiblaphp/http-client": "^1.0@beta",
+        "hiblaphp/http-client": "^1.0",
         "rcalicdan/gemini-client": "^0.3.2",
         "eftec/bladeone": "^4.19",
         "rcalicdan/config-loader": "^1.2",
@@ -22,15 +27,20 @@
     "require-dev": {
         "laravel/pint": "^1.10",
         "phpstan/phpstan": "^2.1",
-        "phpstan/extension-installer": "^1.4"
+        "phpstan/extension-installer": "^1.4",
+        "pestphp/pest": "^4.7",
+        "mockery/mockery": "^1.0",
+        "hiblaphp/http-client-testing": "^1.0"
     },
     "config": {
         "allow-plugins": {
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "pestphp/pest-plugin": true
         }
     },
     "scripts": {
         "format" :"./vendor/bin/pint",
-        "analyze" :"./vendor/bin/phpstan analyse"
+        "analyze" :"./vendor/bin/phpstan analyse",
+        "test" :"./vendor/bin/pest"
     }
 }

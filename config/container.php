@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Integrations\View\BladeRenderer;
 use eftec\bladeone\BladeOne;
+use Integrations\View\BladeRenderer;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Rcalicdan\GeminiClient\GeminiClient;
