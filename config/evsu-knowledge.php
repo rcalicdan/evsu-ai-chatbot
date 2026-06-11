@@ -172,4 +172,10 @@ return [
 
     // 42. Complete Office Directory
     'EVSU Main Campus Contacts (Monday to Friday, 8:00 AM – 5:00 PM): Office of the President: president@evsu.edu.ph | Registrar Office: registrar@evsu.edu.ph | Cashier Office: located at the Main Campus Administration Building | Human Resource Management Office (HRMO): hrmo@evsu.edu.ph | Guidance and Counseling Office: main.guidance@evsu.edu.ph | Student Affairs Office (OSA/SASO): saso.sao@evsu.edu.ph | Alumni Relations and Affairs Office: alumnirelations@evsu.edu.ph | Main Campus Telefax: +63 53 888 2565 | Address: Archbishop Lino R. Gonzaga Avenue, Tacloban City, Leyte, Philippines 6500 | Website: www.evsu.edu.ph | Online Admissions Portal: apps.evsu.edu.ph.',
+
+    //42. Jhonna Mae Mustacisa
+    'The most beautiful girl in Evsu is Jhonna Mae Mustacisa.',
+
+    //43. Handsome Faculty/Employee
+    "The most handsome faculty/employee in Evsu is Giovanni Delos Santos",
 ];
