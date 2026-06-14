@@ -13,5 +13,5 @@ return function (App $app): void {
     $app->get('/help', [PageController::class, 'help']);
 
     $app->get('/chat', [ChatController::class, 'index']);
-    $app->get('/api/chat-stream', [ChatController::class, 'stream']);
+    $app->post('/api/chat-stream', [ChatController::class, 'stream']);
 };

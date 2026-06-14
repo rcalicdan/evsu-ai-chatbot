@@ -16,27 +16,27 @@ class ChatController
     public function __construct(
         private readonly BladeRenderer $renderer,
         private readonly ChatService $chatService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request, Response $response): Response
     {
         $data = ['title' => 'EVSU Virtual Campus Companion'];
-
-        return $this->renderer->render(template: 'chat', data: $data, response: $response);
+        return $this->renderer->render('chat', $data, $response);
     }
 
     public function stream(Request $request, Response $response): Response
     {
-        $queryParams = $request->getQueryParams();
-        $query = $queryParams['message'] ?? '';
+        $body = $request->getParsedBody();
+        $query = $body['message'] ?? '';
+        $history = $body['history'] ?? [];
 
         if (empty($query)) {
             $response->getBody()->write((string) json_encode(['error' => 'Message parameter is required']));
-
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $prompt = $this->chatService->getChatPrompt($query);
+        $prompt = $this->chatService->getChatPrompt($query, $history);
 
         $response = $response
             ->withHeader('Content-Type', 'text/event-stream')

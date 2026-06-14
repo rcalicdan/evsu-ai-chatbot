@@ -1,3 +1,8 @@
+<script type="module">
+    import { fetchEventSource } from 'https://esm.sh/@microsoft/fetch-event-source@2.0.1';
+    window.fetchEventSource = fetchEventSource;
+</script>
+
 <script>
     function chatApp() {
         return {
@@ -19,13 +24,9 @@
 
             renderMarkdown(content) {
                 if (typeof marked !== 'undefined') {
-                    marked.setOptions({
-                        breaks: true,
-                        gfm: true
-                    });
+                    marked.setOptions({ breaks: true, gfm: true });
                     return marked.parse(content);
                 }
-
                 return content;
             },
 
@@ -34,61 +35,69 @@
                 this.sendMessage();
             },
 
-            sendMessage() {
+            async sendMessage() {
                 if (this.userInput.trim() === '') return;
 
                 const userText = this.userInput;
                 this.userInput = '';
-
-                this.messages.push({
-                    role: 'user',
-                    content: userText
-                });
-
+                const historyToSubmit = this.messages.slice(-20);
+                this.messages.push({ role: 'user', content: userText });
                 const modelMessageIndex = this.messages.length;
-                this.messages.push({
-                    role: 'model',
-                    content: ''
-                });
-
+                this.messages.push({ role: 'model', content: '' });
                 this.saveToStorage();
                 this.scrollToBottom();
                 this.isTyping = true;
+                const self = this;
 
-                const eventSource = new EventSource(`/api/chat-stream?message=${encodeURIComponent(userText)}`);
+                try {
+                    await window.fetchEventSource('/api/chat-stream', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'text/event-stream'
+                        },
+                        body: JSON.stringify({
+                            message: userText,
+                            history: historyToSubmit
+                        }),
+                        
+                        onmessage(event) {
+                            self.isTyping = false;
+                            
+                            if (event.data) {
+                                try {
+                                    const parsedData = JSON.parse(event.data);
+                                    if (parsedData.content) {
+                                        self.messages[modelMessageIndex].content += parsedData.content;
+                                        self.scrollToBottom();
+                                    }
+                                } catch (e) {
+                                    console.error("Failed to parse JSON stream chunk", e);
+                                }
+                            }
+                        },
 
-                eventSource.addEventListener('message', (event) => {
-                    this.isTyping = false;
+                        onclose() {
+                            self.saveToStorage();
+                            self.scrollToBottom();
+                        },
 
-                    try {
-                        const data = JSON.parse(event.data);
-                        if (data.content) {
-                            this.messages[modelMessageIndex].content += data.content;
-                            this.scrollToBottom();
+                        onerror(err) {
+                            console.error("EventSource connection error:", err);
+                            self.isTyping = false;
+                            if (self.messages[modelMessageIndex].content === '') {
+                                self.messages[modelMessageIndex].content = "⚠️ Sorry, I had trouble connecting. Please check your internet connection.";
+                            }
+                            self.saveToStorage();
+                            self.scrollToBottom();
+                            
+                            throw err; 
                         }
-                    } catch (e) {
-                        console.error("Failed to parse stream chunk", e);
-                    }
-                });
+                    });
 
-                eventSource.addEventListener('done', () => {
-                    eventSource.close();
-                    this.saveToStorage();
-                    this.scrollToBottom();
-                });
-
-                eventSource.onerror = (err) => {
-                    console.error("EventSource encountered an error", err);
-                    eventSource.close();
-                    this.isTyping = false;
-
-                    if (this.messages[modelMessageIndex].content === '') {
-                        this.messages[modelMessageIndex].content =
-                            "⚠️ Sorry, I had trouble connecting to the campus intelligence system. Please check your internet connection or verify your GEMINI_API_KEY inside the .env file.";
-                    }
-                    this.saveToStorage();
-                    this.scrollToBottom();
-                };
+                } catch (error) {
+                    // Handled inside onerror block
+                }
             },
 
             resetChat() {
