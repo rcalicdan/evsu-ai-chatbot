@@ -16,20 +16,13 @@ class ChatController
     public function __construct(
         private readonly BladeRenderer $renderer,
         private readonly ChatService $chatService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request, Response $response): Response
     {
-        $data = [
-            'title' => 'EVSU Virtual Campus Companion',
-        ];
+        $data = ['title' => 'EVSU Virtual Campus Companion'];
 
-        return $this->renderer->render(
-            template: 'home',
-            data: $data,
-            response: $response
-        );
+        return $this->renderer->render(template: 'chat', data: $data, response: $response);
     }
 
     public function stream(Request $request, Response $response): Response
@@ -49,8 +42,7 @@ class ChatController
             ->withHeader('Content-Type', 'text/event-stream')
             ->withHeader('Cache-Control', 'no-cache')
             ->withHeader('Connection', 'keep-alive')
-            ->withHeader('X-Accel-Buffering', 'no')
-        ;
+            ->withHeader('X-Accel-Buffering', 'no');
 
         foreach ($response->getHeaders() as $name => $values) {
             foreach ($values as $value) {
